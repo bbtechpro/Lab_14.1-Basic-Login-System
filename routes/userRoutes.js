@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const registerRouter = require('../api/users/register');
+const loginRouter = require('../api/users/login');
 
 // Mock database placeholder
 let users = [];
@@ -53,5 +54,8 @@ router.delete('/:id', (req, res) => {
 
 // Mount register routes from api/users/register.js
 router.use('/', registerRouter);
+
+// Mount login routes from api/users/login.js
+router.use('/', loginRouter);
 
 module.exports = router;
