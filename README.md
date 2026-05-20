@@ -29,3 +29,47 @@ Your Express server runs without errors.
 The POST /api/users/register endpoint successfully creates a new user with a hashed password and returns the user’s data.
 The POST /api/users/login endpoint successfully validates a user’s credentials and returns a signed JWT.
 The login endpoint correctly rejects incorrect passwords or non-existent users.
+
+Endpoint Test Results
+✅ POST /api/users/register with missing password
+
+Response: 400
+Body: {"message":"Username, email and password are required."}
+✅ POST /api/users/register with duplicate email
+
+Response: 400
+Body: {"message":"A user with that email already exists."}
+✅ POST /api/users/register with a fresh email
+
+Response: 201
+Body includes:
+username
+email
+_id
+__v
+Password is excluded from the returned JSON
+
+Testing users GET and a lookup for a missing user ID to confirm the users route works.
+
+users Route Test Results
+GET /api/users
+
+Response: {"success":true,"data":[]}
+This confirms the route is reachable and currently returns the mock user list.
+GET /api/users/123
+
+Response: {"success":false,"message":"User not found"}
+This confirms the route handles missing IDs properly.
+
+users Route Test Completed
+POST /api/users
+
+Status: 201
+Response:
+success: true
+data: { id, name, email }
+GET /api/users
+
+Response now includes the newly created mock user:
+{"id":"1779310135411","name":"mockuser","email":"mock@example.com"}
+That confirms the mock users route works for both POST and GET.
