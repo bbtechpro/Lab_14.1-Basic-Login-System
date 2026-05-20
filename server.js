@@ -8,7 +8,12 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/basic-logi
 const mongoose = require('mongoose');
 
 // Connect to MongoDB
-mongoose.connect(MONGO_URI);
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => {
+    console.error('MongoDB connection error:', err.message || err);
+    process.exit(1);
+  });
 
 // Essential built-in parsing middleware 
 app.use(express.json());
