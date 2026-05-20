@@ -22,7 +22,7 @@ router.get('/:id', (req, res) => {
 
 // POST create a new user
 router.post('/', (req, res) => {
-    const { name, email } = req.body;
+    const { name, email } = req.body || {};
     if (!name || !email) {
         return res.status(400).json({ success: false, message: 'Please provide name and email' });
     }
