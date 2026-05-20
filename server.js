@@ -8,10 +8,7 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/basic-logi
 const mongoose = require('mongoose');
 
 // Connect to MongoDB
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(MONGO_URI);
 
 // Essential built-in parsing middleware 
 app.use(express.json());
@@ -19,5 +16,4 @@ app.use(express.json());
 // Mount the modular user routes
 app.use('/api/users', userRoutes);
 
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
