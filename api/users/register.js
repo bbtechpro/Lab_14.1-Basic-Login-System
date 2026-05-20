@@ -5,10 +5,14 @@ const User = require('../../models/userSchema');
 
 router.post('/register', async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password } = req.body || {};
 
         if (!username || !email || !password) {
             return res.status(400).json({ message: 'Username, email and password are required.' });
+        }
+
+        if (typeof password !== 'string' || password.length < 8) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters long.' });
         }
 
         const existingUser = await User.findOne({ email });
@@ -17,7 +21,19 @@ router.post('/register', async (req, res) => {
         }
 
         const newUser = new User({ username, email, password });
-        await newUser.save();
+        try {
+            await newUser.save();
+        } catch (saveErr) {
+            console.error('Error saving new user:', saveErr);
+            if (saveErr && saveErr.code === 11000) {
+                return res.status(400).json({ message: 'A user with that username or email already exists.' });
+            }
+            if (saveErr && saveErr.name === 'ValidationError') {
+                const messages = Object.values(saveErr.errors).map(e => e.message).join(', ');
+                return res.status(400).json({ message: messages });
+            }
+            return res.status(500).json({ message: 'Error saving user', error: saveErr.message });
+        }
 
         const userObj = newUser.toObject();
         delete userObj.password;
@@ -25,6 +41,17 @@ router.post('/register', async (req, res) => {
         return res.status(201).json(userObj);
     } catch (err) {
         console.error(err);
+        // Handle duplicate key (unique fields)
+        if (err && err.code === 11000) {
+            return res.status(400).json({ message: 'Duplicate field value entered.' });
+        }
+
+        // Mongoose validation errors
+        if (err && err.name === 'ValidationError') {
+            const messages = Object.values(err.errors).map(e => e.message).join(', ');
+            return res.status(400).json({ message: messages });
+        }
+
         return res.status(500).json({ message: 'Server error' });
     }
 });
