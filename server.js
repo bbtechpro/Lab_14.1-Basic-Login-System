@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Mount the modular user routes
 app.use('/api/users', userRoutes);
-app.use('/', registerRouter);
-app.use('/', loginRouter);
+app.use('/api/users/register', registerRouter);
+app.use('/api/users/login', loginRouter);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
