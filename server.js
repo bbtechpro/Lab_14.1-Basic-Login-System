@@ -1,7 +1,5 @@
 const express = require('express');
 const userRoutes = require('./routes/userRoutes');
-const registerRouter = require('./api/users/register');
-const loginRouter = require('./api/users/login');
 const dotenv = require('dotenv');
 dotenv.config();
 const app = express();
@@ -21,9 +19,33 @@ mongoose.connect(MONGO_URI)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Simple route logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// Reject body requests missing Content-Type in a clearer way
+app.use((req, res, next) => {
+  const hasBodyMethod = ['POST', 'PUT', 'PATCH'].includes(req.method);
+  if (!hasBodyMethod) {
+    return next();
+  }
+
+  const contentType = req.headers['content-type'];
+  const bodyIsEmpty = !req.body || Object.keys(req.body).length === 0;
+
+  if (!contentType && bodyIsEmpty) {
+    return res.status(400).json({
+      message: 'Request body is empty or Content-Type header is missing.',
+      hint: 'Set Content-Type: application/json and send raw JSON, or use x-www-form-urlencoded if using form data.'
+    });
+  }
+
+  next();
+});
+
 // Mount the modular user routes
 app.use('/api/users', userRoutes);
-app.use('/api/users/register', registerRouter);
-app.use('/api/users/login', loginRouter);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

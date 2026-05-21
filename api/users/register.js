@@ -5,10 +5,19 @@ const User = require('../../models/userSchema');
 
 router.post('/', async (req, res) => {
     try {
-        const { username, email, password } = req.body || {};
+        const body = req.body || {};
+        console.log('Register route hit:', req.method, req.originalUrl, 'content-type=', req.headers['content-type'], 'body=', body);
+        const username = body.username || body.Username || body.userName;
+        const email = body.email || body.Email;
+        const password = body.password || body.Password;
 
         if (!username || !email || !password) {
-            return res.status(400).json({ message: 'Username, email and password are required.' });
+            return res.status(400).json({ 
+                message: 'Username, email and password are required.',
+                receivedKeys: Object.keys(body),
+                expectedKeys: ['username', 'email', 'password'],
+                note: 'Send raw JSON with Content-Type: application/json, or use x-www-form-urlencoded if not raw JSON.'
+            });
         }
 
         if (typeof password !== 'string' || password.length < 8) {
